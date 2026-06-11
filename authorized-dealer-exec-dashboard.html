@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authorized Dealer — Executive Strategy Dashboard</title>
+<style>
+:root {
+  --ink:       #0d0d0c;
+  --ink-2:     #3a3a38;
+  --ink-3:     #6b6b68;
+  --ink-4:     #9b9b97;
+  --surface:   #ffffff;
+  --surface-2: #f6f5f1;
+  --surface-3: #edecea;
+  --border:    rgba(13,13,12,.09);
+  --border-2:  rgba(13,13,12,.16);
+  --lime:      #c8f135;
+  --lime-dim:  #eafaa5;
+  --lime-ink:  #283500;
+  --red:       #e03c2a;
+  --red-dim:   #fdecea;
+  --red-ink:   #7a1a10;
+  --amber:     #d97d10;
+  --amber-dim: #fef3e2;
+  --amber-ink: #6b3a00;
+  --teal:      #1a8a6e;
+  --teal-dim:  #e2f5ef;
+  --teal-ink:  #0a3d30;
+  --purple:    #6241bf;
+  --purple-dim:#eeebfb;
+  --purple-ink:#2d1a6b;
+  --nav-w:     200px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:var(--surface-2);color:var(--ink);line-height:1.55}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{font-weight:600;line-height:1.2;color:var(--ink)}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--nav-w);min-width:var(--nav-w);background:var(--ink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:100}
+.sb-brand{padding:18px 14px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-wordmark{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);display:block;margin-bottom:2px}
+.sb-sub{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.07em;text-transform:uppercase}
+.sb-label{font-size:8.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.22);padding:14px 14px 3px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:11.5px;color:rgba(255,255,255,.5);cursor:pointer;transition:all .12s;border-left:2px solid transparent}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.04)}
+.nav-item.active{color:var(--lime);border-left-color:var(--lime);background:rgba(200,241,53,.05)}
+.nav-num{font-size:9px;opacity:.4;min-width:14px}
+.sb-footer{margin-top:auto;padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);font-size:9px;color:rgba(255,255,255,.2);line-height:1.6}
+
+/* MAIN */
+.main{flex:1;overflow-x:hidden}
+.topbar{position:sticky;top:0;background:rgba(246,245,241,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 28px;height:44px;display:flex;align-items:center;justify-content:space-between;z-index:50}
+.crumb{font-size:11.5px;color:var(--ink-3)}
+.crumb strong{color:var(--ink);font-weight:600}
+.topbar-meta{display:flex;gap:10px;align-items:center}
+.chip{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.chip-lime{background:var(--lime-dim);color:var(--lime-ink)}
+.chip-gray{font-size:10px;color:var(--ink-3)}
+
+/* CONTENT */
+.content{padding:28px 32px;max-width:1020px}
+.section{display:none;animation:fadeIn .18s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.sec-eyebrow{font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-4);margin-bottom:5px}
+.sec-title{font-size:24px;font-weight:700;letter-spacing:-.022em;margin-bottom:3px}
+.sec-lead{font-size:13px;color:var(--ink-3);margin-bottom:22px;max-width:640px;line-height:1.6}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 22px;margin-bottom:14px}
+.card-title{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+
+/* METRIC CARDS */
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.mc-label{font-size:10px;color:var(--ink-3);font-weight:500;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.mc-val{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.mc-sub{font-size:10.5px;color:var(--ink-4);margin-top:3px}
+.mc.acc-lime{border-top:3px solid var(--lime)}
+.mc.acc-red{border-top:3px solid var(--red)}
+.mc.acc-teal{border-top:3px solid var(--teal)}
+.mc.acc-amber{border-top:3px solid var(--amber)}
+.mc.acc-purple{border-top:3px solid var(--purple)}
+
+/* CALLOUT */
+.callout{padding:12px 16px;border-radius:6px;font-size:12.5px;line-height:1.6;margin-bottom:14px;border-left:3px solid}
+.callout-red{background:var(--red-dim);border-color:var(--red);color:var(--red-ink)}
+.callout-amber{background:var(--amber-dim);border-color:var(--amber);color:var(--amber-ink)}
+.callout-teal{background:var(--teal-dim);border-color:var(--teal);color:var(--teal-ink)}
+.callout-lime{background:var(--lime-dim);border-color:var(--lime);color:var(--lime-ink)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.b-high{background:var(--red-dim);color:var(--red-ink)}
+.b-med{background:var(--amber-dim);color:var(--amber-ink)}
+.b-low{background:var(--teal-dim);color:var(--teal-ink)}
+.b-lime{background:var(--lime-dim);color:var(--lime-ink)}
+.b-purple{background:var(--purple-dim);color:var(--purple-ink)}
+.b-gray{background:var(--surface-3);color:var(--ink-3)}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);padding:6px 10px;border-bottom:1.5px solid var(--border-2)}
+td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--ink-2);vertical-align:top;line-height:1.5}
+tr:last-child td{border-bottom:none}
+td strong{color:var(--ink);font-weight:600}
+
+/* INSIGHT ROWS */
+.ir{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.ir:last-child{border-bottom:none;padding-bottom:0}
+.ir:first-child{padding-top:0}
+.dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.ir-text{font-size:12.5px;color:var(--ink-2);line-height:1.55;flex:1}
+.ir-text strong{color:var(--ink);font-weight:600}
+
+/* HERO */
+.hero{background:var(--ink);border-radius:10px;padding:26px 28px;margin-bottom:22px;color:rgba(255,255,255,.85)}
+.hero-label{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:10px}
+.hero-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.02em;margin-bottom:10px;line-height:1.3;max-width:680px}
+.hero-body{font-size:12.5px;line-height:1.65;color:rgba(255,255,255,.65);max-width:720px;margin-bottom:18px}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;border-top:1px solid rgba(255,255,255,.1);padding-top:18px}
+.hstat-val{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
+.hstat-label{font-size:10px;color:rgba(255,255,255,.45);margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
+
+/* DECISION TABLE SPECIAL */
+.decision-yes{color:var(--teal);font-size:12px}
+.decision-no{color:var(--red);font-size:12px}
+.deadline{color:var(--red);font-weight:700;font-size:12px}
+
+/* PRIORITY TABLE */
+.pri-num{font-size:18px;font-weight:700;color:var(--ink-4);line-height:1}
+.pri-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.pri-desc{font-size:11.5px;color:var(--ink-3);line-height:1.5}
+
+/* PHASE BLOCKS */
+.phase-header{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:4px;margin-bottom:12px}
+.ph-red{background:var(--red-dim);color:var(--red-ink)}
+.ph-purple{background:var(--purple-dim);color:var(--purple-ink)}
+.ph-amber{background:var(--amber-dim);color:var(--amber-ink)}
+.phase-block{margin-bottom:20px}
+.pi{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.pi:last-child{border-bottom:none}
+.pi-n{font-size:12px;font-weight:700;min-width:22px;color:var(--ink-4);padding-top:2px}
+.pi-name{font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.pi-why{font-size:11.5px;color:var(--ink-3);line-height:1.5}
+.blocking .pi-n{color:var(--red)}
+.build .pi-n{color:var(--purple)}
+.scale .pi-n{color:var(--amber)}
+
+/* RISK ROW */
+.risk-row{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.risk-row:last-child{border-bottom:none}
+.risk-num{font-size:13px;font-weight:700;min-width:20px;color:var(--ink-4)}
+.risk-name{font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.risk-mit{font-size:11.5px;color:var(--ink-3);line-height:1.5}
+
+/* GATE ITEMS */
+.gate{border-left:3px solid var(--border-2);padding:12px 16px;margin-bottom:10px;background:var(--surface);border-radius:0 6px 6px 0}
+.gate-date{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
+.gate-q{font-size:12.5px;color:var(--ink-2);line-height:1.55;margin-bottom:6px}
+.gate-action{font-size:11.5px;color:var(--red);font-weight:500}
+
+/* SUPPORTING — collapsed by default */
+.collapsible{border-radius:7px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;background:var(--surface)}
+.col-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none}
+.col-title{font-size:12.5px;font-weight:600;color:var(--ink)}
+.col-toggle{font-size:18px;color:var(--ink-4);transition:transform .2s}
+.col-toggle.open{transform:rotate(45deg)}
+.col-body{padding:0 18px 16px;display:none}
+.col-body.open{display:block}
+
+@media(max-width:860px){
+  .sidebar{display:none}
+  .g4,.hero-stats{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .g2{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .content{padding:16px}
+  .g4,.g3,.g2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <span class="sb-wordmark">Authorized Dealer NJ</span>
+    <span class="sb-sub">Executive Strategy Dashboard</span>
+  </div>
+  <div class="sb-label">Core</div>
+  <div class="nav-item active" onclick="show('exec')"><span class="nav-num">01</span>Executive Summary</div>
+  <div class="nav-item" onclick="show('priorities')"><span class="nav-num">02</span>Top 5 Priorities</div>
+  <div class="nav-item" onclick="show('roadmap')"><span class="nav-num">03</span>90-Day Roadmap</div>
+  <div class="sb-label">Strategic</div>
+  <div class="nav-item" onclick="show('opportunities')"><span class="nav-num">04</span>Key Opportunities</div>
+  <div class="nav-item" onclick="show('risks')"><span class="nav-num">05</span>Key Risks</div>
+  <div class="nav-item" onclick="show('territory')"><span class="nav-num">06</span>Territory Strategy</div>
+  <div class="nav-item" onclick="show('growth')"><span class="nav-num">07</span>Growth Engines</div>
+  <div class="sb-label">Supporting</div>
+  <div class="nav-item" onclick="show('supporting')"><span class="nav-num">08</span>Supporting Analysis</div>
+  <div class="sb-footer">June 12, 2026<br>Confidential — Internal Use Only</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <span class="crumb" id="crumb">01 — <strong>Executive Summary</strong></span>
+    <div class="topbar-meta">
+      <span class="chip chip-lime">Strategy Active</span>
+      <span class="chip-gray">June 12, 2026</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 01 EXECUTIVE SUMMARY -->
+    <div class="section active" id="sec-exec">
+      <div class="sec-eyebrow">Authorized Dealer NJ · Strategy Dashboard</div>
+      <div class="sec-title">Executive Summary</div>
+      <div class="sec-lead">What matters, what's next, and the three decisions that need to happen this week.</div>
+
+      <div class="hero">
+        <div class="hero-label">Strategic Diagnosis · June 2026</div>
+        <div class="hero-title">Strong brand, proven market position — infrastructure not yet ready to scale.</div>
+        <div class="hero-body">
+          Authorized Dealer is a 3-location (soon 4) NJ cannabis retailer with a #1 position in Jersey City's 28-competitor market, a licensed delivery channel, and the most differentiated brand in its territory. The business doubled JC revenue year-over-year.<br><br>
+          It is now entering paid media scale-up from a position of operational vulnerability: the primary Instagram account is disabled, attribution is unverified, email marketing hasn't started, and the CRM is underutilized. The opportunity is real and time-sensitive — but only if the foundation is fixed first.
+        </div>
+        <div class="hero-stats">
+          <div><div class="hstat-val">3</div><div class="hstat-label">Active Locations</div></div>
+          <div><div class="hstat-val">#1</div><div class="hstat-label">JC Market Rank</div></div>
+          <div><div class="hstat-val">$57</div><div class="hstat-label">Avg. Order Value</div></div>
+          <div><div class="hstat-val">38–40%</div><div class="hstat-label">Gross Margin</div></div>
+        </div>
+      </div>
+
+      <div class="g3">
+        <div class="card" style="border-top:3px solid var(--red)">
+          <div class="card-title">5 Key Findings</div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>Attribution is broken.</strong> iFrame menu means all CPA data is an estimate, not a measurement.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>Meta account is at risk.</strong> Primary IG disabled. Business Manager access unresolved.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>No email list exists.</strong> Every paid visitor who doesn't convert leaves no owned data.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text"><strong>Unit economics don't close at $57 AOV.</strong> $20 CPA + 38% margin = ~$2 contribution. Delivery ($75 min) is the only channel where the math works now.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text"><strong>CRM is underutilized.</strong> Sweed POS has win-back and loyalty automation. None of it is activated.</div></div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--lime)">
+          <div class="card-title">5 Opportunities</div>
+          <div class="ir"><div class="dot" style="background:var(--teal)"></div><div class="ir-text"><strong>Sweed win-back.</strong> Lapsed customers (30–60 days, 2+ purchases) are in the database. Revenue this week, zero CAC.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--teal)"></div><div class="ir-text"><strong>Referral program.</strong> $15/$15 mechanic is built and not promoted. Known cost, zero platform risk.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--teal)"></div><div class="ir-text"><strong>Delivery dominance.</strong> Licensed, multi-zone delivery via TerpTaxi. $75 min AOV makes unit economics work. No competitor has matched this infrastructure.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--lime-ink)"></div><div class="ir-text"><strong>World Cup content window.</strong> MetLife Stadium is visible from North Bergen parking lot. This content moment doesn't return until 2030.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--purple)"></div><div class="ir-text"><strong>Willingboro drive-thru moat.</strong> No other South NJ dispensary has a drive-thru. PA cross-border demand is captive.</div></div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--amber)">
+          <div class="card-title">5 Risks</div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>Meta cascade ban.</strong> One policy enforcement action takes down the entire paid social strategy with no backup channel.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>Paid launch without attribution.</strong> Optimizing against bad data for 60 days before the problem surfaces.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text"><strong>North Bergen revenue gap.</strong> Brand investment without a store-level conversion plan produces awareness, not revenue.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text"><strong>Astroturfing exposure.</strong> Fake Reddit accounts = FTC violation + brand credibility risk. Must be replaced before campaign launch.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text"><strong>No owned channel.</strong> Without email, every banned ad account means customers are permanently lost.</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Three Decisions That Need to Happen This Week</div>
+        <table>
+          <thead><tr><th>Decision</th><th>If Yes</th><th>If No</th><th>Deadline</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Fix attribution before any paid spend?</strong></td>
+              <td class="decision-yes">All optimization data is real. CPA numbers are trustworthy.</td>
+              <td class="decision-no">60 days optimizing against fiction. Wrong campaigns scale.</td>
+              <td class="deadline">Before launch</td>
+            </tr>
+            <tr>
+              <td><strong>Treat Meta account as gone and rebuild clean?</strong></td>
+              <td class="decision-yes">New compliant infrastructure. No contamination from disabled account.</td>
+              <td class="decision-no">Dependency on a recovery that may never arrive.</td>
+              <td class="deadline">This week</td>
+            </tr>
+            <tr>
+              <td><strong>Deploy Sweed win-backs and referrals before any new acquisition spend?</strong></td>
+              <td class="decision-yes">Revenue this week at $0 CAC. Retention baseline for LTV model.</td>
+              <td class="decision-no">Continue under-monetizing existing customers while paying for new ones.</td>
+              <td class="deadline">This week</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 02 TOP 5 PRIORITIES -->
+    <div class="section" id="sec-priorities">
+      <div class="sec-eyebrow">Section 02</div>
+      <div class="sec-title">Top 5 Priorities</div>
+      <div class="sec-lead">The five initiatives that generate the most leverage in the next 90 days — ranked by impact and sequenced by dependency.</div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>#</th><th>Priority</th><th>Impact</th><th>Effort</th><th>Timeline</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="pri-num">1</td>
+              <td><div class="pri-name">Fix Attribution Stack</div><div class="pri-desc">Meta CAPI + GA4 server-side events + Dutchie webhooks. Blocking gate for all paid media.</div></td>
+              <td><span class="badge b-high">Critical</span></td>
+              <td><span class="badge b-low">3–5 days</span></td>
+              <td>Days 1–5</td>
+              <td>Sam (Dev)</td>
+            </tr>
+            <tr>
+              <td class="pri-num">2</td>
+              <td><div class="pri-name">Activate Sweed CRM — Win-Backs + Referrals</div><div class="pri-desc">Lapsed customer win-back + $15/$15 referral SMS blast. Zero CAC. Revenue within 7 days.</div></td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-low">1–2 days</span></td>
+              <td>Days 1–3</td>
+              <td>Operator + Agency</td>
+            </tr>
+            <tr>
+              <td class="pri-num">3</td>
+              <td><div class="pri-name">Rebuild Meta Account Architecture</div><div class="pri-desc">New Business Manager, store accounts, compliant ad structure. Completely separate from disabled account.</div></td>
+              <td><span class="badge b-high">Critical</span></td>
+              <td><span class="badge b-med">3–4 days</span></td>
+              <td>Days 1–7</td>
+              <td>Agency</td>
+            </tr>
+            <tr>
+              <td class="pri-num">4</td>
+              <td><div class="pri-name">Launch Delivery-First Paid Campaigns</div><div class="pri-desc">Google Search targeting delivery keywords. $75 AOV floor makes unit economics immediately viable. Only after attribution is verified.</div></td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-med">1 week</span></td>
+              <td>Days 14–21</td>
+              <td>Agency</td>
+            </tr>
+            <tr>
+              <td class="pri-num">5</td>
+              <td><div class="pri-name">Build Email List from Day One</div><div class="pri-desc">Email capture pop-up live before first paid click. 3–8% of paid traffic converted to owned contacts. Insurance against platform bans.</div></td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-low">1 day dev</span></td>
+              <td>Days 14–20</td>
+              <td>Sam (Dev) + Agency</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-amber"><strong>Sequencing rule:</strong> Priorities 1, 2, and 3 must complete before Priority 4 goes live. No paid dollar should launch until attribution is verified and the Meta account architecture is rebuilt.</div>
+    </div>
+
+    <!-- 03 90-DAY ROADMAP -->
+    <div class="section" id="sec-roadmap">
+      <div class="sec-eyebrow">Section 03 · The Centerpiece</div>
+      <div class="sec-title">90-Day Roadmap</div>
+      <div class="sec-lead">Sequenced by dependency, not preference. The phasing is non-negotiable — Phase 1 blocks Phase 2.</div>
+
+      <div class="g3" style="margin-bottom:20px">
+        <div class="mc" style="border-top:3px solid var(--red)"><div class="mc-label">Phase 1 · Days 1–30</div><div class="mc-val" style="font-size:15px">Fix the Foundation</div><div class="mc-sub">Block everything else until this is done</div></div>
+        <div class="mc" style="border-top:3px solid var(--purple)"><div class="mc-label">Phase 2 · Days 31–60</div><div class="mc-val" style="font-size:15px">Launch &amp; Prove</div><div class="mc-sub">Acquire, capture, and establish baseline</div></div>
+        <div class="mc" style="border-top:3px solid var(--amber)"><div class="mc-label">Phase 3 · Days 61–90</div><div class="mc-val" style="font-size:15px">Scale What Works</div><div class="mc-sub">Add complexity only after proof</div></div>
+      </div>
+
+      <div class="card">
+        <!-- PHASE 1 -->
+        <div class="phase-block">
+          <span class="phase-header ph-red">Phase 1 · Days 1–30 · June 12–July 12 · Foundation</span>
+          <div class="pi blocking"><div class="pi-n">1</div><div><div class="pi-name">Attribution stack — Meta CAPI + GA4 + Dutchie event tracking</div><div class="pi-why">Blocking. Verify with a test purchase before any spend goes live. 3–5 days dev work. Everything else depends on this.</div></div></div>
+          <div class="pi blocking"><div class="pi-n">2</div><div><div class="pi-name">Sweed win-back + referral SMS blast — deploy this week</div><div class="pi-why">Revenue in 7 days, zero CAC. Lapsed customers (2+ purchases, 30–60 days inactive). $15/$15 referral: one SMS + in-store QR signage. No reason this isn't running today.</div></div></div>
+          <div class="pi blocking"><div class="pi-n">3</div><div><div class="pi-name">Meta account rebuild — new BM, store accounts, compliant structure</div><div class="pi-why">Build completely separately from disabled account. Rename Bay Street handle. Do not link to old infrastructure. Blocking Meta ad launch.</div></div></div>
+          <div class="pi blocking"><div class="pi-n">4</div><div><div class="pi-name">World Cup content capture — June 13 watch party</div><div class="pi-why">Time-critical. MetLife visible from North Bergen lot. This footage anchors all paid creative for 60 days. Get Nicole on-site. Miss it and the window closes until 2030.</div></div></div>
+          <div class="pi blocking"><div class="pi-n">5</div><div><div class="pi-name">NJ competitive intelligence sprint — 2–3 days</div><div class="pi-why">Meta Ad Library audit of JC/North Bergen competitors. Delivery zone gap analysis. Pricing comparison. Must complete before creative production starts.</div></div></div>
+          <div class="pi blocking"><div class="pi-n">6</div><div><div class="pi-name">Bay Street rebrand complete — signage, social handle, GBP update</div><div class="pi-why">Running ads to a store that says "Bay Street Greenery" on the door breaks trust at the moment of conversion.</div></div></div>
+        </div>
+
+        <!-- PHASE 2 -->
+        <div class="phase-block">
+          <span class="phase-header ph-purple">Phase 2 · Days 31–60 · July 13–Aug 11 · Launch</span>
+          <div class="pi build"><div class="pi-n">7</div><div><div class="pi-name">Email capture live — first-time offer pop-up before first paid click</div><div class="pi-why">1-day dev task. Must precede any paid launch. 3–8% of paid traffic captured as owned contacts. Insurance against future platform bans.</div></div></div>
+          <div class="pi build"><div class="pi-n">8</div><div><div class="pi-name">Delivery page rebuild — sell delivery, don't explain it</div><div class="pi-why">Conversion-optimized. First-order offer, zone map, "$75 / always free" as featured benefit, sticky Order Now CTA. Live simultaneously with delivery campaigns.</div></div></div>
+          <div class="pi build"><div class="pi-n">9</div><div><div class="pi-name">Google Search launch — delivery keywords first, then local + branded</div><div class="pi-why">Highest-intent paid channel. "Weed delivery Jersey City," "cannabis delivery Hoboken," "dispensary near me NJ." Daily cap until attribution verified via test conversions.</div></div></div>
+          <div class="pi build"><div class="pi-n">10</div><div><div class="pi-name">Loyalty tier trigger — "You're $X from Tier 2" Sweed automation</div><div class="pi-why">1-day setup. Drives frequency and AOV from customers already in the database. Zero new spend. Targets the $1,800–$2,000 spend trigger point.</div></div></div>
+          <div class="pi build"><div class="pi-n">11</div><div><div class="pi-name">7/10 Dab Day — multi-store concentrate-segment campaign</div><div class="pi-why">Hard deadline: July 10. Plan by June 25. Segment Sweed by concentrate purchase history. Coordinate in-store offers + social across all 3 stores.</div></div></div>
+          <div class="pi build"><div class="pi-n">12</div><div><div class="pi-name">Meta TOF campaigns — $2–3K/mo, lifestyle creative, compliant structure</div><div class="pi-why">Launch conservative. World Cup footage as hero creative. No product close-ups, no pricing, no "buy" language. 30 days = learning phase, not optimization phase.</div></div></div>
+          <div class="pi build"><div class="pi-n">13</div><div><div class="pi-name">Instagram rebuild + TikTok launch</div><div class="pi-why">Brand master account + store sub-accounts. TikTok as parallel channel (lower compliance friction). Don't wait on disabled account recovery.</div></div></div>
+        </div>
+
+        <!-- PHASE 3 -->
+        <div class="phase-block">
+          <span class="phase-header ph-amber">Phase 3 · Days 61–90 · Aug 12–Sept 10 · Scale</span>
+          <div class="pi scale"><div class="pi-n">14</div><div><div class="pi-name">AOV lift program — bundles, checkout upsells, delivery minimum prompts</div><div class="pi-why">Needs 30 days of AOV baseline first. Lifting $57 → $70 triples contribution margin per acquisition. Changes the entire CPA math.</div></div></div>
+          <div class="pi scale"><div class="pi-n">15</div><div><div class="pi-name">North Bergen Tonnelle dedicated conversion strategy</div><div class="pi-why">If organic content hasn't driven store revenue by week 7, deploy: 0.5-mile radius paid + in-store exclusives + event-driven foot traffic. Separate from brand content.</div></div></div>
+        </div>
+
+        <!-- DEFERRED -->
+        <div class="phase-block">
+          <span class="phase-header" style="background:var(--surface-3);color:var(--ink-3)">Deferred · Day 90+</span>
+          <div class="pi"><div class="pi-n" style="color:var(--ink-4)">—</div><div><div class="pi-name" style="color:var(--ink-3)">OOH digital billboards</div><div class="pi-why">Only after NJ CRC legal review confirmed, 60-day paid baseline established, and brand film creative exists.</div></div></div>
+          <div class="pi"><div class="pi-n" style="color:var(--ink-4)">—</div><div><div class="pi-name" style="color:var(--ink-3)">CTV campaigns</div><div class="pi-why">Brand awareness with no direct attribution. Re-evaluate at Day 90 when LTV model exists and funnel is proven.</div></div></div>
+          <div class="pi"><div class="pi-n" style="color:var(--red)">✕</div><div><div class="pi-name" style="color:var(--red-ink)">Astroturfing / synthetic Reddit seeding</div><div class="pi-why">Not deferred — not recommended at all. FTC violation + Reddit TOS violation. Replace with authentic social listening: real alerts, real responses from real team members.</div></div></div>
+        </div>
+      </div>
+
+      <!-- DECISION GATES -->
+      <div class="card">
+        <div class="card-title">Decision Gates — Stop / Continue Criteria</div>
+        <div class="gate" style="border-left-color:var(--red)">
+          <div class="gate-date">Gate 1 · Day 30 · July 12</div>
+          <div class="gate-q">Is attribution verified? What is real CPA on Google? Is email list growing? Is Sweed win-back running?</div>
+          <div class="gate-action">If attribution still broken → pause all paid. Fix before any new spend.</div>
+        </div>
+        <div class="gate" style="border-left-color:var(--amber)">
+          <div class="gate-date">Gate 2 · Day 60 · Aug 11</div>
+          <div class="gate-q">What is Google vs. Meta CPA delta? Which creative is outperforming? Is AOV moving? What does win-back rate tell us about LTV?</div>
+          <div class="gate-action">Reallocate budget to the channel with proven CPA. Cut the underperformer.</div>
+        </div>
+        <div class="gate" style="border-left-color:var(--teal)">
+          <div class="gate-date">Gate 3 · Day 90 · Sept 10</div>
+          <div class="gate-q">Is the acquisition model profitable at current CPA + AOV? What is the 60-day repeat purchase rate? Do unit economics support OOH + CTV?</div>
+          <div class="gate-action">Go/no-go on brand film budget. Go/no-go on CTV. North Bergen Tonnelle revenue trajectory decision.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 KEY OPPORTUNITIES -->
+    <div class="section" id="sec-opportunities">
+      <div class="sec-eyebrow">Section 04</div>
+      <div class="sec-title">Key Opportunities</div>
+      <div class="sec-lead">Ranked by expected ROI. The top five can generate revenue this week.</div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>#</th><th>Opportunity</th><th>Revenue Impact</th><th>Effort</th><th>Time to Revenue</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td><strong>Sweed CRM win-back</strong> — lapsed customers, product-matched offers</td><td><span class="badge b-lime">Very High</span></td><td><span class="badge b-low">Low</span></td><td>7 days</td></tr>
+            <tr><td><strong>2</strong></td><td><strong>Referral program activation</strong> — $15/$15, SMS blast + in-store QR</td><td><span class="badge b-lime">High</span></td><td><span class="badge b-low">Low</span></td><td>7 days</td></tr>
+            <tr><td><strong>3</strong></td><td><strong>Delivery acquisition via Google Search</strong> — delivery keywords, $75 AOV floor</td><td><span class="badge b-high">High</span></td><td><span class="badge b-med">Medium</span></td><td>14–21 days</td></tr>
+            <tr><td><strong>4</strong></td><td><strong>Loyalty tier progress trigger</strong> — "You're $X from Tier 2" Sweed automation</td><td><span class="badge b-lime">High</span></td><td><span class="badge b-low">Low</span></td><td>14 days</td></tr>
+            <tr><td><strong>5</strong></td><td><strong>Willingboro drive-thru as lead message</strong> — update all listings, ads, and pages</td><td><span class="badge b-lime">High</span></td><td><span class="badge b-low">Low</span></td><td>Immediate</td></tr>
+            <tr><td><strong>6</strong></td><td><strong>Google Business Profile optimization</strong> — all 3 locations, drive-thru attribute, delivery zones</td><td><span class="badge b-med">Medium</span></td><td><span class="badge b-low">Low</span></td><td>Ongoing</td></tr>
+            <tr><td><strong>7</strong></td><td><strong>7/10 Dab Day multi-store campaign</strong> — Sweed concentrate-buyer segment</td><td><span class="badge b-lime">High</span></td><td><span class="badge b-med">Medium</span></td><td>July 10</td></tr>
+            <tr><td><strong>8</strong></td><td><strong>World Cup content → paid creative flywheel</strong> — MetLife footage as hero asset</td><td><span class="badge b-med">Medium</span></td><td><span class="badge b-med">Medium</span></td><td>60 days</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 05 KEY RISKS -->
+    <div class="section" id="sec-risks">
+      <div class="sec-eyebrow">Section 05</div>
+      <div class="sec-title">Key Risks</div>
+      <div class="sec-lead">The risks that could materially damage revenue, brand equity, or the paid media investment.</div>
+
+      <div class="callout callout-red"><strong>Highest Active Risk:</strong> Instagram primary account is disabled. Meta Business Manager access is unresolved. One enforcement action = entire paid social strategy goes dark with no backup channel.</div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>#</th><th>Risk</th><th>Severity</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td><strong>Meta cascade ban</strong> — disabled IG + unresolved BM + cannabis content</td>
+              <td><span class="badge b-high">Critical</span></td>
+              <td><span class="badge b-high">High</span></td>
+              <td>Rebuild from scratch. Separate BM, separate ad accounts. No link to disabled account.</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td><strong>Attribution broken at launch</strong> — iFrame menu; all CPA data estimated</td>
+              <td><span class="badge b-high">Critical</span></td>
+              <td><span class="badge b-high">High</span></td>
+              <td>Meta CAPI + GA4 server-side events. Verify with test purchase before any spend.</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td><strong>$20 CPA not viable at $57 AOV</strong> — ~$2 contribution at scale</td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-high">High</span></td>
+              <td>Build 90-day LTV model. Prioritize delivery ($75 AOV floor). Bundle programs to lift walk-in AOV to $70+.</td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td><strong>Astroturfing exposure</strong> — fake Reddit accounts = FTC violation</td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-med">Medium</span></td>
+              <td>Replace with authentic social listening. Real responses from real team members. Same intelligence, zero exposure.</td>
+            </tr>
+            <tr>
+              <td><strong>5</strong></td>
+              <td><strong>North Bergen brand investment without revenue conversion</strong></td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-high">High</span></td>
+              <td>Dedicated store-level plan: hyper-local targeting, in-store exclusives, event foot traffic — separate from brand content.</td>
+            </tr>
+            <tr>
+              <td><strong>6</strong></td>
+              <td><strong>No owned channel</strong> — email list doesn't exist as paid spend ramps</td>
+              <td><span class="badge b-high">High</span></td>
+              <td><span class="badge b-high">High</span></td>
+              <td>Email capture live before any paid launch. Even 500 subscribers is insurance against platform bans.</td>
+            </tr>
+            <tr>
+              <td><strong>7</strong></td>
+              <td><strong>JC / North Bergen delivery zone overlap</strong> — cannibalization risk</td>
+              <td><span class="badge b-med">Medium</span></td>
+              <td><span class="badge b-med">Medium</span></td>
+              <td>Explicit zone boundaries defined. Store-specific offers and positioning. Monitor AOV and volume per zone.</td>
+            </tr>
+            <tr>
+              <td><strong>8</strong></td>
+              <td><strong>OOH regulatory compliance unclear</strong> — NJ CRC cannabis rules not confirmed</td>
+              <td><span class="badge b-med">Medium</span></td>
+              <td><span class="badge b-med">Medium</span></td>
+              <td>Legal review before any OOH creative production. Don't produce what you can't use.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 06 TERRITORY STRATEGY -->
+    <div class="section" id="sec-territory">
+      <div class="sec-eyebrow">Section 06</div>
+      <div class="sec-title">Territory Strategy</div>
+      <div class="sec-lead">Each location has a distinct job. Each needs its own strategy — not just shared brand content.</div>
+
+      <div class="callout callout-teal"><strong>Portfolio Thesis:</strong> Jersey City is the revenue engine. North Bergen is the brand asset. Willingboro is the geographic expansion play. The 4th location densifies the highest-concentration territory.</div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>Territory</th><th>Strategic Role</th><th>Primary Growth Lever</th><th>Key Risk</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Jersey City — Bay Street</strong></td>
+              <td>Revenue engine · #1 in 28-competitor market</td>
+              <td>Defend delivery dominance. PATH commuter foot traffic. Google Search delivery keywords.</td>
+              <td>Price pressure from 28 competitors. Discounting compresses margin.</td>
+              <td><span class="badge b-high">Defend</span></td>
+            </tr>
+            <tr>
+              <td><strong>North Bergen — Tonnelle</strong></td>
+              <td>Brand flagship · lowest revenue, highest design value</td>
+              <td>World Cup watch parties. Event foot traffic. Hyper-local 0.5-mile paid targeting.</td>
+              <td>Brand investment doesn't translate to store revenue. Competitor could open while it's underperforming.</td>
+              <td><span class="badge b-high">Convert</span></td>
+            </tr>
+            <tr>
+              <td><strong>Willingboro — US-130</strong></td>
+              <td>Geographic moat · South NJ + PA cross-border</td>
+              <td>Drive-thru as lead message everywhere. PA border geo-targeting. Philly-culture creative brief.</td>
+              <td>NYC-culture content doesn't work here. Distinct market needs distinct creative.</td>
+              <td><span class="badge b-med">Differentiate</span></td>
+            </tr>
+            <tr>
+              <td><strong>North Bergen — 89th St</strong></td>
+              <td>Density play · new end of proven territory</td>
+              <td>4th store launch = major content moment. Minimal Tonnelle overlap. New catchment area.</td>
+              <td>Cannibalizes Tonnelle before it reaches revenue parity if zoning isn't managed.</td>
+              <td><span class="badge b-low">Plan (Wks 7–9)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 07 GROWTH ENGINES -->
+    <div class="section" id="sec-growth">
+      <div class="sec-eyebrow">Section 07</div>
+      <div class="sec-title">Growth Engines</div>
+      <div class="sec-lead">Ranked by revenue impact and time to impact. The top three operate without new ad spend.</div>
+
+      <div class="card">
+        <table>
+          <thead><tr><th>Rank</th><th>Growth Engine</th><th>Revenue Impact</th><th>Time to Impact</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td><strong>Delivery</strong> — TerpTaxi · $75 AOV floor · multi-zone · no fee</td><td><span class="badge b-high">Very High</span></td><td>Immediate — already live</td><td><span class="badge b-high">Lead Channel</span></td></tr>
+            <tr><td><strong>2</strong></td><td><strong>CRM / Sweed</strong> — win-back, tier triggers, cross-sell automation</td><td><span class="badge b-high">High</span></td><td>7–14 days</td><td><span class="badge b-high">Deploy Now</span></td></tr>
+            <tr><td><strong>3</strong></td><td><strong>Referrals</strong> — $15/$15 · built, not promoted</td><td><span class="badge b-lime">High</span></td><td>7 days</td><td><span class="badge b-high">Deploy Now</span></td></tr>
+            <tr><td><strong>4</strong></td><td><strong>Google Search</strong> — delivery keywords + local intent + branded</td><td><span class="badge b-high">High</span></td><td>14–21 days post-attribution fix</td><td><span class="badge b-purple">Phase 2</span></td></tr>
+            <tr><td><strong>5</strong></td><td><strong>Loyalty Program</strong> — Street Credit tier escalation + birthday flow</td><td><span class="badge b-med">Medium</span></td><td>30 days for tier triggers; 60 days for full flow</td><td><span class="badge b-purple">Phase 2</span></td></tr>
+            <tr><td><strong>6</strong></td><td><strong>Meta Paid Social</strong> — TOF lifestyle creative · 21+ NJ zips</td><td><span class="badge b-med">Medium</span></td><td>30–60 days (after Google baseline)</td><td><span class="badge b-purple">Phase 2</span></td></tr>
+            <tr><td><strong>7</strong></td><td><strong>Community Events</strong> — World Cup, 7/10, vendor pop-ups → content → paid</td><td><span class="badge b-med">Medium</span></td><td>Ongoing — requires content capture</td><td><span class="badge b-med">Ongoing</span></td></tr>
+            <tr><td><strong>8</strong></td><td><strong>OOH / Paid Search Expansion</strong> — Willingboro highway, NJ-compliant</td><td><span class="badge b-low">Medium</span></td><td>Day 60–90 (after compliance + baseline)</td><td><span class="badge b-gray">Phase 3</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 08 SUPPORTING ANALYSIS -->
+    <div class="section" id="sec-supporting">
+      <div class="sec-eyebrow">Section 08</div>
+      <div class="sec-title">Supporting Analysis</div>
+      <div class="sec-lead">Reference material for deeper dives. Collapsed by default — expand as needed.</div>
+
+      <!-- Brand Positioning -->
+      <div class="collapsible">
+        <div class="col-head" onclick="toggleCol(this)">
+          <span class="col-title">Brand Positioning</span>
+          <span class="col-toggle">+</span>
+        </div>
+        <div class="col-body">
+          <div class="callout callout-teal" style="margin-top:4px"><strong>Core Positioning:</strong> "Born in New Jersey, Built on Culture." The Authorized Dealer name implies legitimacy, exclusivity, and insider access. Most NJ dispensaries default to weed-shop aesthetics. AD's brand elevation signals quality to a segment competitors don't even try to attract.</div>
+          <div class="g2">
+            <div>
+              <p style="font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">Strengths</p>
+              <div class="ir"><div class="dot" style="background:var(--teal)"></div><div class="ir-text">Name does conceptual work no competitor can replicate: legitimacy + exclusivity + insider access</div></div>
+              <div class="ir"><div class="dot" style="background:var(--teal)"></div><div class="ir-text">North Bergen store design is a physical brand narrative — "where you used to buy vs. where you buy now"</div></div>
+              <div class="ir"><div class="dot" style="background:var(--teal)"></div><div class="ir-text">Community embeddedness: World Cup watch parties, weekly vendor pop-ups, 7/10 events — operational habits that build brand</div></div>
+            </div>
+            <div>
+              <p style="font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">Gaps</p>
+              <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text">No brand voice document. Agency is writing Reddit responses and ad copy without documented tone guidelines.</div></div>
+              <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text">Bay Street still mid-rebrand. Willingboro has no distinct brand treatment despite a culturally different market (Philly, not NYC).</div></div>
+              <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text">No master vs. sub-brand hierarchy defined. With a 4th store opening, this becomes harder the longer it's deferred.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Deep Dive -->
+      <div class="collapsible">
+        <div class="col-head" onclick="toggleCol(this)">
+          <span class="col-title">Delivery — Unit Economics</span>
+          <span class="col-toggle">+</span>
+        </div>
+        <div class="col-body">
+          <div class="g3" style="margin-top:4px;margin-bottom:14px">
+            <div class="mc acc-teal"><div class="mc-label">Delivery Min.</div><div class="mc-val">$75</div><div class="mc-sub">No delivery fee</div></div>
+            <div class="mc acc-lime"><div class="mc-label">AOV Lift vs. Walk-in</div><div class="mc-val">+$18</div><div class="mc-sub">$75 vs. $57 avg.</div></div>
+            <div class="mc acc-amber"><div class="mc-label">Gross Contribution</div><div class="mc-val">~$28.50</div><div class="mc-sub">vs. ~$22 at $57 walk-in</div></div>
+          </div>
+          <div class="callout callout-teal">Delivery is not a convenience feature — it's a distribution moat. At $75 minimum, a $20 CPA leaves ~$8.50 contribution. For walk-in orders at $57 AOV, the same $20 CPA leaves ~$2. Delivery is the only channel where the current unit economics work immediately.</div>
+          <table>
+            <thead><tr><th>Zone</th><th>Market Density</th><th>Competitive Status</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td>Jersey City high-rises</td><td>Very High</td><td>Delivery is a differentiator; 28 competitors but few with delivery</td><td><span class="badge b-high">Lead zone — defend</span></td></tr>
+              <tr><td>Hoboken</td><td>High</td><td>High-income, delivery-familiar demographic</td><td><span class="badge b-high">High value</span></td></tr>
+              <tr><td>Fort Lee / North Bergen local</td><td>Medium</td><td>Undermarketed — store serves zone</td><td><span class="badge b-med">Grow</span></td></tr>
+              <tr><td>PA border zip codes (Willingboro)</td><td>Captive demand</td><td>No legal NJ competitor serving PA residents</td><td><span class="badge b-lime">Untapped</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CRM & Loyalty -->
+      <div class="collapsible">
+        <div class="col-head" onclick="toggleCol(this)">
+          <span class="col-title">CRM &amp; Loyalty — Sweed POS</span>
+          <span class="col-toggle">+</span>
+        </div>
+        <div class="col-body">
+          <div class="callout callout-red" style="margin-top:4px">"We can do that through Sweed currently. We're just not that granular and defined on it." — Operator. The infrastructure exists. The activation is missing.</div>
+          <table style="margin-bottom:14px">
+            <thead><tr><th>Tier</th><th>Annual Spend</th><th>Earn Rate</th><th>Key Perks</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Tier 1</strong></td><td>$1–$2,499</td><td>1x per $1</td><td>Tier 1 promos, birthday $5/visit month, unlimited referrals</td></tr>
+              <tr><td><strong>Tier 2</strong></td><td>$2,500–$4,999</td><td>1.25x per $1</td><td>Off-site events, milestone rewards, 250 bonus credits Jan 1</td></tr>
+              <tr><td><strong>Tier 3</strong></td><td>$5,000+</td><td>1.5x per $1</td><td>All Tier 2 + premium access</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">CRM Flows to Build (Weeks 3–6)</p>
+          <div class="ir"><div class="dot" style="background:var(--purple)"></div><div class="ir-text"><strong>Tier progress trigger.</strong> At $1,800–$2,000 annual spend, trigger "You're $X from Tier 2." Drives frequency and AOV simultaneously. Native to Sweed.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--purple)"></div><div class="ir-text"><strong>Post-purchase cross-sell.</strong> Pre-roll buyer → vape. Concentrate buyer → accessories. Runs automatically based on purchase category.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--purple)"></div><div class="ir-text"><strong>Welcome flow (after email capture).</strong> First opt-in → offer delivery → educate on loyalty tiers → invite to refer. 3-email sequence.</div></div>
+        </div>
+      </div>
+
+      <!-- Paid Media Rules -->
+      <div class="collapsible">
+        <div class="col-head" onclick="toggleCol(this)">
+          <span class="col-title">Paid Media — Channel Plan &amp; Compliance Rules</span>
+          <span class="col-toggle">+</span>
+        </div>
+        <div class="col-body">
+          <table style="margin-top:4px;margin-bottom:14px">
+            <thead><tr><th>Channel</th><th>Launch Timing</th><th>Budget Phase 1</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Google Search</strong></td><td>Phase 2 (after attribution fix)</td><td>$3–5K/mo</td><td><span class="badge b-low">Low — cleaner cannabis policy</span></td></tr>
+              <tr><td><strong>Meta (FB/IG)</strong></td><td>Phase 2 (after 30 days Google data)</td><td>$2–3K/mo to start</td><td><span class="badge b-high">High — account ban risk</span></td></tr>
+              <tr><td><strong>OOH (Digital)</strong></td><td>Phase 3 (after compliance confirmed)</td><td>TBD</td><td><span class="badge b-med">Medium — compliance unclear</span></td></tr>
+              <tr><td><strong>CTV</strong></td><td>Day 90+ only</td><td>Day 90+</td><td><span class="badge b-low">Low regulatory risk</span></td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">Meta Non-Negotiable Compliance Rules</p>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>No transactional language.</strong> All CTAs must be lifestyle-framed: "Explore," "Find a location," "Learn more." No "buy now."</div></div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>No product close-ups.</strong> Show environment, lifestyle, and people — not flower, pre-rolls, vapes, or concentrates in isolation.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--red)"></div><div class="ir-text"><strong>No pricing in creative.</strong> "$20 eighths" or any specific price point in ad creative is a compliance flag.</div></div>
+          <div class="ir"><div class="dot" style="background:var(--amber)"></div><div class="ir-text"><strong>Multiple store accounts is standard practice.</strong> Gotham and comparable operators use separate accounts per location. This is risk management, not a gray area.</div></div>
+        </div>
+      </div>
+
+      <!-- Attribution -->
+      <div class="collapsible">
+        <div class="col-head" onclick="toggleCol(this)">
+          <span class="col-title">Measurement &amp; Attribution — Implementation Checklist</span>
+          <span class="col-toggle">+</span>
+        </div>
+        <div class="col-body">
+          <div class="callout callout-red" style="margin-top:4px">The menu is likely served via Dutchie (iFrame), which breaks standard GA4 and Meta Pixel tracking. All CPA and revenue numbers referenced to date are operator estimates — not verified analytics exports.</div>
+          <table>
+            <thead><tr><th>Task</th><th>Method</th><th>Owner</th><th>Deadline</th></tr></thead>
+            <tbody>
+              <tr><td>Meta CAPI server-side purchase events</td><td>Dutchie webhook → Meta CAPI endpoint</td><td>Sam (Dev)</td><td>Before paid launch</td></tr>
+              <tr><td>GA4 purchase event tracking</td><td>Dutchie webhook → GA4 Measurement Protocol</td><td>Sam (Dev)</td><td>Before paid launch</td></tr>
+              <tr><td>Google Ads conversion import from GA4</td><td>Link GA4 → Google Ads; import Purchase goal</td><td>Sam + Agency</td><td>Before Google campaigns</td></tr>
+              <tr><td>UTM parameter framework</td><td>Standardized UTMs for all paid traffic</td><td>Agency</td><td>Before any ad goes live</td></tr>
+              <tr><td>Unified reporting dashboard</td><td>Looker Studio: GA4 + Ads + Sweed</td><td>Agency (Elaine)</td><td>Week 4</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="collapsible">
+        <div class="col-head" onclick="toggleCol(this)">
+          <span class="col-title">KPI Dashboard — 90-Day Targets</span>
+          <span class="col-toggle">+</span>
+        </div>
+        <div class="col-body">
+          <div class="callout callout-amber" style="margin-top:4px"><strong>Prerequisite:</strong> None of these KPIs are reportable until attribution is verified. Treat all current numbers as estimates until Meta CAPI + GA4 + unified reporting are live.</div>
+          <table>
+            <thead><tr><th>Metric</th><th>Current</th><th>30-Day Target</th><th>90-Day Target</th><th>Owner</th></tr></thead>
+            <tbody>
+              <tr><td>Average Order Value</td><td>$55–60</td><td>$62</td><td>$68+</td><td>Operator</td></tr>
+              <tr><td>Verified CPA — Google</td><td>Not tracked</td><td>&lt;$20</td><td>&lt;$15</td><td>Agency</td></tr>
+              <tr><td>Verified CPA — Meta</td><td>Not tracked</td><td>&lt;$25</td><td>&lt;$20</td><td>Agency</td></tr>
+              <tr><td>Delivery order volume (weekly)</td><td>Unknown</td><td>+20% WoW</td><td>2× baseline</td><td>Operator</td></tr>
+              <tr><td>Email list size</td><td>~0</td><td>200+</td><td>700+</td><td>Agency</td></tr>
+              <tr><td>Win-back conversion rate</td><td>Not run</td><td>5–10%</td><td>8–15%</td><td>Operator + Agency</td></tr>
+              <tr><td>90-day customer LTV</td><td>Not modeled</td><td>Model built</td><td>LTV ÷ CPA &gt; 3×</td><td>Agency</td></tr>
+              <tr><td>Instagram followers (combined)</td><td>Disabled / Bay Street only</td><td>Architecture live</td><td>2,500+</td><td>Nicole</td></tr>
+              <tr><td>Attribution verified (purchase events)</td><td>Not verified</td><td>Verified before launch</td><td>Maintained</td><td>Sam (Dev)</td></tr>
+              <tr><td>Unified reporting dashboard live</td><td>No</td><td>Week 4</td><td>Weekly review ritual</td><td>Agency (Elaine)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+const sections={
+  exec:{id:'sec-exec',label:'01 — Executive Summary'},
+  priorities:{id:'sec-priorities',label:'02 — Top 5 Priorities'},
+  roadmap:{id:'sec-roadmap',label:'03 — 90-Day Roadmap'},
+  opportunities:{id:'sec-opportunities',label:'04 — Key Opportunities'},
+  risks:{id:'sec-risks',label:'05 — Key Risks'},
+  territory:{id:'sec-territory',label:'06 — Territory Strategy'},
+  growth:{id:'sec-growth',label:'07 — Growth Engines'},
+  supporting:{id:'sec-supporting',label:'08 — Supporting Analysis'}
+};
+function show(key){
+  Object.values(sections).forEach(s=>{
+    const el=document.getElementById(s.id);
+    if(el)el.classList.remove('active');
+  });
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const sec=sections[key];
+  if(sec){
+    const el=document.getElementById(sec.id);
+    if(el)el.classList.add('active');
+    document.getElementById('crumb').innerHTML=sec.label.replace(' — ',' — <strong>')+'</strong>';
+  }
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes(`'${key}'`)){
+      n.classList.add('active');
+    }
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleCol(head){
+  const toggle=head.querySelector('.col-toggle');
+  const body=head.nextElementSibling;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  toggle.classList.toggle('open',!isOpen);
+}
+</script>
+</body>
+</html>
